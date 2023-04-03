@@ -7,9 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AccountState {
 
-    NORMAL("NORMAL", true),
-    WITHDRAWN("WITHDRAWN", false);
+    NORMAL("NORMAL", true, true),
+    SUSPENDED("SUSPENDED", true, false),
+    WITHDRAWN("WITHDRAWN", false, false);
 
     private final String value;
+    private final boolean visible;
     private final boolean accessible;
 }
