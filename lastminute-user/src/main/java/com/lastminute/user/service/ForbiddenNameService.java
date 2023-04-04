@@ -4,6 +4,7 @@ import com.lastminute.user.domain.ForbiddenName;
 import com.lastminute.user.exception.ExceptionCode;
 import com.lastminute.user.exception.UserException;
 import com.lastminute.user.external.dto.CreateForbiddenNameRequestDto;
+import com.lastminute.user.external.dto.ReadForbiddenNameResponseDto;
 import com.lastminute.user.repository.ForbiddenNameRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,15 @@ public class ForbiddenNameService {
 
     private final ForbiddenNameRepository forbiddenNameRepository;
 
-    public void createForbiddenName(CreateForbiddenNameRequestDto request) {
+    public ReadForbiddenNameResponseDto createForbiddenName(CreateForbiddenNameRequestDto request) {
+        if (isForbiddenName(request.getName())) {
+            throw new UserException(ExceptionCode.FORBIDDEN_NAME_ALREADY_EXIST);
+        }
+
         ForbiddenName forbiddenName = request.toEntity();
-        forbiddenNameRepository.save(forbiddenName);
+        forbiddenName = forbiddenNameRepository.save(forbiddenName);
+
+        return ReadForbiddenNameResponseDto.of(forbiddenName);
     }
 
     public void deleteForbiddenName(String name) {
