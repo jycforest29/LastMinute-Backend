@@ -36,7 +36,7 @@ public class UserService {
     private void validateUserName(String nickname) {
         final boolean isForbidden = forbiddenNameService.isForbiddenName(nickname);
         if (isForbidden) {
-            throw new UserException(ExceptionCode.USER_NAME_NOT_ALLOWED);
+            throw UserException.of(ExceptionCode.USER_NAME_NOT_ALLOWED);
         }
     }
 
@@ -60,14 +60,14 @@ public class UserService {
         User user = findUserInternal(userId);
 
         if (user.getAccountState().equals(AccountState.WITHDRAWN)) {
-            throw new UserException(ExceptionCode.USER_ALREADY_WITHDRAWN);
+            throw UserException.of(ExceptionCode.USER_ALREADY_WITHDRAWN);
         }
         userWriteFacade.withdrawUser(user);
     }
 
     private User findUserInternal(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ExceptionCode.USER_NOT_FOUND));
+                .orElseThrow(() -> UserException.of(ExceptionCode.USER_NOT_FOUND));
     }
 
 }

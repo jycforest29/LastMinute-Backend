@@ -48,7 +48,7 @@ public class User {
 
     public void updateProfile(String nickname, String email) {
         if (!this.accountState.isAccessible()) {
-            throw new UserException(ExceptionCode.USER_ILLEGAL_STATE);
+            throw UserException.of(ExceptionCode.USER_ILLEGAL_STATE);
         }
 
         this.nickname = nickname;

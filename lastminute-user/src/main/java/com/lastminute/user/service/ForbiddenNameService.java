@@ -17,7 +17,7 @@ public class ForbiddenNameService {
 
     public ReadForbiddenNameResponseDto createForbiddenName(CreateForbiddenNameRequestDto request) {
         if (isForbiddenName(request.getName())) {
-            throw new UserException(ExceptionCode.FORBIDDEN_NAME_ALREADY_EXIST);
+            throw UserException.of(ExceptionCode.FORBIDDEN_NAME_ALREADY_EXIST);
         }
 
         ForbiddenName forbiddenName = request.toEntity();
@@ -28,7 +28,7 @@ public class ForbiddenNameService {
 
     public void deleteForbiddenName(String name) {
         ForbiddenName forbiddenName = forbiddenNameRepository.findById(name)
-                .orElseThrow(() -> new UserException(ExceptionCode.FORBIDDEN_NAME_NOT_FOUND));
+                .orElseThrow(() -> UserException.of(ExceptionCode.FORBIDDEN_NAME_NOT_FOUND));
 
         forbiddenNameRepository.delete(forbiddenName);
     }
