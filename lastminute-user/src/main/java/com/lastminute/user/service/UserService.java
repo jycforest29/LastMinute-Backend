@@ -11,18 +11,19 @@ import com.lastminute.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserUpdateFacade userUpdateFacade;
     private final ForbiddenNameRepository forbiddenNameRepository;
 
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         validUserName(userRequestDto.getNickname());
 
         User newbie = userRequestDto.toEntity();
-        newbie = userRepository.save(newbie);
+        newbie = userUpdateFacade.createUser(newbie);
         return UserResponseDto.of(newbie);
     }
 
@@ -44,7 +45,7 @@ public class UserService {
         if (user.getAccountState().equals(AccountState.WITHDRAWN)) {
             throw new UserException(ExceptionCode.USER_ALREADY_WITHDRAWN);
         }
-        user.withdraw();
+        userUpdateFacade.withdrawUser(user);
     }
 
     private User findUserInternal(Long userId) {

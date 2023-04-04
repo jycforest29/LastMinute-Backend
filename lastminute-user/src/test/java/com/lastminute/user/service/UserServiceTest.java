@@ -20,6 +20,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -29,6 +32,9 @@ public class UserServiceTest {
     
     @Mock
     private ForbiddenNameRepository forbiddenNameRepository;
+
+    @Mock
+    private UserUpdateFacade userUpdateFacade;
 
     @InjectMocks
     private UserService userService;
@@ -55,7 +61,7 @@ public class UserServiceTest {
             Long userId = 412L;
             ReflectionTestUtils.setField(createdUser, "id", userId);
 
-            given(userRepository.save(any())).willReturn(createdUser);
+            given(userUpdateFacade.createUser(any())).willReturn(createdUser);
 
             // when
             UserResponseDto response = userService.createUser(request);
@@ -78,7 +84,7 @@ public class UserServiceTest {
             Long userId = 412L;
             ReflectionTestUtils.setField(createdUser, "id", userId);
 
-            given(userRepository.save(any())).willReturn(createdUser);
+            given(userUpdateFacade.createUser(any())).willReturn(createdUser);
 
             // when
             UserResponseDto response = userService.createUser(request);
@@ -111,7 +117,8 @@ public class UserServiceTest {
 
             // when, then
             assertThatThrownBy(() -> userService.createUser(request))
-                    .isInstanceOf(UserException.class);
+                    .isInstanceOf(UserException.class)
+                    .hasMessageContaining("사용할 수 없는 닉네임");
         }
 
     }
@@ -188,7 +195,7 @@ public class UserServiceTest {
     class withdrawUser {
 
         @Test
-        @DisplayName("탈퇴 성공 후 이메일 삭제, 닉네임 '탈퇴한 사용자', 상태 변경 적용")
+        @DisplayName("사용자 존재하면 정상적으로 탈퇴")
         public void successWithdraw() {
             // given
             User user = User.builder()
@@ -202,14 +209,13 @@ public class UserServiceTest {
             ReflectionTestUtils.setField(user, "id", userId);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userUpdateFacade.withdrawUser(any())).willReturn(user);
 
             // when
             userService.withdrawUser(userId);
 
             // then
-            assertThat(user.getAccountState()).isEqualTo(AccountState.WITHDRAWN);
-            assertThat(user.getNickname()).isEqualTo("탈퇴한 사용자");
-            assertThat(user.getEmail()).isNull();
+            then(userUpdateFacade).should(times(1)).withdrawUser(user);
         }
 
         @Test
