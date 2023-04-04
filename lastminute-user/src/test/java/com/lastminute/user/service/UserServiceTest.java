@@ -2,8 +2,8 @@ package com.lastminute.user.service;
 
 import com.lastminute.user.domain.*;
 import com.lastminute.user.exception.UserException;
-import com.lastminute.user.external.dto.UserRequestDto;
-import com.lastminute.user.external.dto.UserResponseDto;
+import com.lastminute.user.external.dto.CreateUserRequestDto;
+import com.lastminute.user.external.dto.ReadUserResponseDto;
 import com.lastminute.user.repository.ForbiddenNameRepository;
 import com.lastminute.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -21,7 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +33,7 @@ public class UserServiceTest {
     private ForbiddenNameRepository forbiddenNameRepository;
 
     @Mock
-    private UserUpdateFacade userUpdateFacade;
+    private UserWriteFacade userWriteFacade;
 
     @InjectMocks
     private UserService userService;
@@ -52,7 +51,7 @@ public class UserServiceTest {
         @DisplayName("모든 값이 있고 정상적일 때 성공")
         public void createByFullInfo() {
             // given
-            UserRequestDto request = UserRequestDto.builder()
+            CreateUserRequestDto request = CreateUserRequestDto.builder()
                     .email("myemail@gmail.com")
                     .nickname("james")
                     .providerType("KAKAO")
@@ -61,10 +60,10 @@ public class UserServiceTest {
             Long userId = 412L;
             ReflectionTestUtils.setField(createdUser, "id", userId);
 
-            given(userUpdateFacade.createUser(any())).willReturn(createdUser);
+            given(userWriteFacade.createUser(any())).willReturn(createdUser);
 
             // when
-            UserResponseDto response = userService.createUser(request);
+            ReadUserResponseDto response = userService.createUser(request);
 
             // then
             assertThat(response.getId()).isEqualTo(userId);
@@ -76,7 +75,7 @@ public class UserServiceTest {
         @DisplayName("필수 값만 있고 정상적일 때 성공")
         public void createByRequiredInfo() {
             // given
-            UserRequestDto request = UserRequestDto.builder()
+            CreateUserRequestDto request = CreateUserRequestDto.builder()
                     .nickname("james")
                     .providerType("KAKAO")
                     .build();
@@ -84,10 +83,10 @@ public class UserServiceTest {
             Long userId = 412L;
             ReflectionTestUtils.setField(createdUser, "id", userId);
 
-            given(userUpdateFacade.createUser(any())).willReturn(createdUser);
+            given(userWriteFacade.createUser(any())).willReturn(createdUser);
 
             // when
-            UserResponseDto response = userService.createUser(request);
+            ReadUserResponseDto response = userService.createUser(request);
 
             // then
             assertThat(response.getId()).isEqualTo(userId);
@@ -100,7 +99,7 @@ public class UserServiceTest {
         public void notAllowedUserName() {
             // given
             final String name = "탈퇴한 사용자";
-            UserRequestDto request = UserRequestDto.builder()
+            CreateUserRequestDto request = CreateUserRequestDto.builder()
                     .nickname(name)
                     .providerType("KAKAO")
                     .build();
@@ -144,7 +143,7 @@ public class UserServiceTest {
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
             // when
-            UserResponseDto response = userService.findUser(userId);
+            ReadUserResponseDto response = userService.findUser(userId);
 
             // then
             assertThat(response.getId()).isEqualTo(userId);
@@ -181,7 +180,7 @@ public class UserServiceTest {
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
             // when
-            UserResponseDto response = userService.findUser(userId);
+            ReadUserResponseDto response = userService.findUser(userId);
 
             // then
             assertThat(response.getId()).isEqualTo(userId);
@@ -209,13 +208,13 @@ public class UserServiceTest {
             ReflectionTestUtils.setField(user, "id", userId);
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
-            given(userUpdateFacade.withdrawUser(any())).willReturn(user);
+            given(userWriteFacade.withdrawUser(any())).willReturn(user);
 
             // when
             userService.withdrawUser(userId);
 
             // then
-            then(userUpdateFacade).should(times(1)).withdrawUser(user);
+            then(userWriteFacade).should(times(1)).withdrawUser(user);
         }
 
         @Test

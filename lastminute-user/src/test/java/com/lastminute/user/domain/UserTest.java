@@ -14,6 +14,7 @@ public class UserTest {
         User user = User.builder()
                 .nickname("james")
                 .providerType(ProviderType.KAKAO)
+                .accountState(AccountState.NORMAL)
                 .build();
 
         // when

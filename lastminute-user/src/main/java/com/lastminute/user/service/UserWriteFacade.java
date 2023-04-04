@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class UserUpdateFacade {
+public class UserWriteFacade {
 
     private final UserRepository userRepository;
     // TODO kafka producer
@@ -16,7 +16,7 @@ public class UserUpdateFacade {
     @Transactional
     public User createUser(User user) {
         user = userRepository.save(user);
-        // TODO kafka
+        // TODO msg produce
 
         return user;
     }
@@ -25,8 +25,16 @@ public class UserUpdateFacade {
     public User withdrawUser(User user) {
         user.withdraw();
         user = userRepository.save(user);
-        // TODO kafka
+        // TODO msg produce
 
+        return user;
+    }
+
+    @Transactional
+    public User updateProfile(User user) {
+        user = userRepository.save(user);
+
+        // TODO msg produce
         return user;
     }
 }

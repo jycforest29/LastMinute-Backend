@@ -4,8 +4,9 @@ import com.lastminute.user.domain.AccountState;
 import com.lastminute.user.domain.User;
 import com.lastminute.user.exception.ExceptionCode;
 import com.lastminute.user.exception.UserException;
-import com.lastminute.user.external.dto.UserRequestDto;
-import com.lastminute.user.external.dto.UserResponseDto;
+import com.lastminute.user.external.dto.CreateUserRequestDto;
+import com.lastminute.user.external.dto.ReadUserResponseDto;
+import com.lastminute.user.external.dto.UpdateUserRequestDto;
 import com.lastminute.user.repository.ForbiddenNameRepository;
 import com.lastminute.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,28 +16,42 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
+    // Read Only
     private final UserRepository userRepository;
-    private final UserUpdateFacade userUpdateFacade;
+
+    // Write
+    private final UserWriteFacade userWriteFacade;
     private final ForbiddenNameRepository forbiddenNameRepository;
 
-    public UserResponseDto createUser(UserRequestDto userRequestDto) {
-        validUserName(userRequestDto.getNickname());
+    public ReadUserResponseDto createUser(CreateUserRequestDto request) {
+        validateUserName(request.getNickname());
 
-        User newbie = userRequestDto.toEntity();
-        newbie = userUpdateFacade.createUser(newbie);
-        return UserResponseDto.of(newbie);
+        User newbie = request.toEntity();
+        newbie = userWriteFacade.createUser(newbie);
+        return ReadUserResponseDto.of(newbie);
     }
 
-    private void validUserName(String nickname) {
+    private void validateUserName(String nickname) {
         final boolean isForbidden = forbiddenNameRepository.findById(nickname).isPresent();
         if (isForbidden) {
             throw new UserException(ExceptionCode.USER_NAME_NOT_ALLOWED);
         }
     }
 
-    public UserResponseDto findUser(Long userId) {
+    public ReadUserResponseDto findUser(Long userId) {
         User user = findUserInternal(userId);
-        return UserResponseDto.of(user);
+        return ReadUserResponseDto.of(user);
+    }
+
+    public ReadUserResponseDto updateUser(UpdateUserRequestDto request) {
+        User user = findUserInternal(request.getUserId());
+
+        validateUserName(request.getNickname());
+
+        user.updateProfile(request.getNickname(), request.getEmail());
+        userWriteFacade.updateProfile(user);
+
+        return ReadUserResponseDto.of(user);
     }
 
     public void withdrawUser(Long userId) {
@@ -45,7 +60,7 @@ public class UserService {
         if (user.getAccountState().equals(AccountState.WITHDRAWN)) {
             throw new UserException(ExceptionCode.USER_ALREADY_WITHDRAWN);
         }
-        userUpdateFacade.withdrawUser(user);
+        userWriteFacade.withdrawUser(user);
     }
 
     private User findUserInternal(Long userId) {

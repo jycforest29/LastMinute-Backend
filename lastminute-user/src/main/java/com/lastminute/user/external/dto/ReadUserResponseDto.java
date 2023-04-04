@@ -6,13 +6,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public final class UserResponseDto {
+public final class ReadUserResponseDto {
     private final Long id;
     private final String nickname;
     private final String email;
 
-    public static UserResponseDto of(User entity) {
-        return UserResponseDto.builder()
+    public static ReadUserResponseDto of(User entity) {
+        return ReadUserResponseDto.builder()
                 .id(entity.getId())
                 .nickname(entity.getNickname())
                 .email(entity.getEmail())

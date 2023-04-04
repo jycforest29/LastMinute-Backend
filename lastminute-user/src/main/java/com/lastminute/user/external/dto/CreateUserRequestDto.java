@@ -11,7 +11,7 @@ import lombok.*;
 
 @Getter
 @Builder
-public final class UserRequestDto {
+public final class CreateUserRequestDto {
 
     @NotNull(message = "이름을 입력해주세요.")
     @Size(min = 2, max = 12, message = "2 ~ 12자의 이름을 입력해주세요.")

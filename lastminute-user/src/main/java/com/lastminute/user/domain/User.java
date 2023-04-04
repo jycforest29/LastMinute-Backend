@@ -1,5 +1,7 @@
 package com.lastminute.user.domain;
 
+import com.lastminute.user.exception.ExceptionCode;
+import com.lastminute.user.exception.UserException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -40,9 +42,17 @@ public class User {
     ProviderType providerType;
 
     public void withdraw() {
+        this.updateProfile("탈퇴한 사용자", null);
         this.accountState = AccountState.WITHDRAWN;
-        this.email = null;
-        this.nickname = "탈퇴한 사용자";
+    }
+
+    public void updateProfile(String nickname, String email) {
+        if (!this.accountState.isAccessible()) {
+            throw new UserException(ExceptionCode.USER_ILLEGAL_STATE);
+        }
+
+        this.nickname = nickname;
+        this.email = email;
     }
 
     @Builder
