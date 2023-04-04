@@ -23,7 +23,7 @@ public class UserService {
     private final UserWriteFacade userWriteFacade;
 
     // TODO : 캐싱 처리
-    private final ForbiddenNameRepository forbiddenNameRepository;
+    private final ForbiddenNameService forbiddenNameService;
 
     public ReadUserResponseDto createUser(CreateUserRequestDto request) {
         validateUserName(request.getNickname());
@@ -34,7 +34,7 @@ public class UserService {
     }
 
     private void validateUserName(String nickname) {
-        final boolean isForbidden = forbiddenNameRepository.findById(nickname).isPresent();
+        final boolean isForbidden = forbiddenNameService.isForbiddenName(nickname);
         if (isForbidden) {
             throw new UserException(ExceptionCode.USER_NAME_NOT_ALLOWED);
         }

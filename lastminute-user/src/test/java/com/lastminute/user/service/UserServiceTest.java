@@ -5,7 +5,6 @@ import com.lastminute.user.exception.UserException;
 import com.lastminute.user.external.dto.CreateUserRequestDto;
 import com.lastminute.user.external.dto.ReadUserResponseDto;
 import com.lastminute.user.external.dto.UpdateUserRequestDto;
-import com.lastminute.user.repository.ForbiddenNameRepository;
 import com.lastminute.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +30,7 @@ public class UserServiceTest {
     private UserRepository userRepository;
     
     @Mock
-    private ForbiddenNameRepository forbiddenNameRepository;
+    private ForbiddenNameService forbiddenNameService;
 
     @Mock
     private UserWriteFacade userWriteFacade;
@@ -45,7 +44,7 @@ public class UserServiceTest {
 
         @BeforeEach
         public void setupEmptyForbiddenNames() {
-            given(forbiddenNameRepository.findById(anyString())).willReturn(Optional.empty());
+            given(forbiddenNameService.isForbiddenName(anyString())).willReturn(false);
         }
 
         @Test
@@ -107,13 +106,8 @@ public class UserServiceTest {
             User createdUser = request.toEntity();
             Long userId = 412L;
             ReflectionTestUtils.setField(createdUser, "id", userId);
-
-            ForbiddenName forbiddenName = ForbiddenName.builder()
-                    .name(name)
-                    .reason("혼돈을 줄 수 있음")
-                    .build();
             
-            given(forbiddenNameRepository.findById(name)).willReturn(Optional.of(forbiddenName));
+            given(forbiddenNameService.isForbiddenName(name)).willReturn(true);
 
             // when, then
             assertThatThrownBy(() -> userService.createUser(request))
@@ -259,7 +253,7 @@ public class UserServiceTest {
             Long userId = 1512L;
             ReflectionTestUtils.setField(user, "id", userId);
 
-            given(forbiddenNameRepository.findById(anyString())).willReturn(Optional.empty());
+            given(forbiddenNameService.isForbiddenName(anyString())).willReturn(false);
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(userWriteFacade.updateProfile(any())).willReturn(user);
 
@@ -309,12 +303,7 @@ public class UserServiceTest {
             Long userId = 1512L;
             ReflectionTestUtils.setField(user, "id", userId);
 
-            ForbiddenName forbiddenName = ForbiddenName.builder()
-                    .name("root")
-                    .reason("confuse")
-                    .build();
-
-            given(forbiddenNameRepository.findById("root")).willReturn(Optional.of(forbiddenName));
+            given(forbiddenNameService.isForbiddenName("root")).willReturn(true);
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
             // when, then
