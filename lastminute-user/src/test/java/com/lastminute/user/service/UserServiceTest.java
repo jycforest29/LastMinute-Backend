@@ -4,6 +4,7 @@ import com.lastminute.user.domain.*;
 import com.lastminute.user.exception.UserException;
 import com.lastminute.user.external.dto.CreateUserRequestDto;
 import com.lastminute.user.external.dto.ReadUserResponseDto;
+import com.lastminute.user.external.dto.UpdateUserRequestDto;
 import com.lastminute.user.repository.ForbiddenNameRepository;
 import com.lastminute.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -238,5 +239,95 @@ public class UserServiceTest {
             assertThatThrownBy(() -> userService.withdrawUser(userId))
                     .isInstanceOf(UserException.class);
         }
+    }
+
+    @Nested
+    @DisplayName("사용자 정보 수정")
+    class updateUser {
+
+        @Test
+        @DisplayName("정상적으로 수정 완료")
+        public void updateSuccess() {
+            // given
+            User user = User.builder()
+                    .email("myemail@gmail.com")
+                    .nickname("james")
+                    .providerType(ProviderType.KAKAO)
+                    .accountRole(AccountRole.USER)
+                    .accountState(AccountState.NORMAL)
+                    .build();
+            Long userId = 1512L;
+            ReflectionTestUtils.setField(user, "id", userId);
+
+            given(forbiddenNameRepository.findById(anyString())).willReturn(Optional.empty());
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userWriteFacade.updateProfile(any())).willReturn(user);
+
+            // when
+            UpdateUserRequestDto request = UpdateUserRequestDto.builder()
+                    .userId(userId)
+                    .email("different@gmail.com")
+                    .nickname("nick")
+                    .build();
+
+            userService.updateUser(request);
+
+            // then
+            then(userWriteFacade).should(times(1)).updateProfile(user);
+        }
+
+        @Test
+        @DisplayName("해당 ID의 사용자가 없을 때 예외")
+        public void notFoundUser() {
+            // given
+            Long userId = 1512L;
+
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+            // when, then
+            UpdateUserRequestDto request = UpdateUserRequestDto.builder()
+                    .userId(userId)
+                    .email("different@gmail.com")
+                    .nickname("nick")
+                    .build();
+
+            assertThatThrownBy(() -> userService.updateUser(request))
+                    .isInstanceOf(UserException.class);
+        }
+
+        @Test
+        @DisplayName("금지된 이름으로 변경 시도 시 예외")
+        public void forbiddenName() {
+            // given
+            User user = User.builder()
+                    .email("myemail@gmail.com")
+                    .nickname("james")
+                    .providerType(ProviderType.KAKAO)
+                    .accountRole(AccountRole.USER)
+                    .accountState(AccountState.NORMAL)
+                    .build();
+            Long userId = 1512L;
+            ReflectionTestUtils.setField(user, "id", userId);
+
+            ForbiddenName forbiddenName = ForbiddenName.builder()
+                    .name("root")
+                    .reason("confuse")
+                    .build();
+
+            given(forbiddenNameRepository.findById("root")).willReturn(Optional.of(forbiddenName));
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+            // when, then
+            UpdateUserRequestDto request = UpdateUserRequestDto.builder()
+                    .userId(userId)
+                    .email("different@gmail.com")
+                    .nickname("root")
+                    .build();
+
+            assertThatThrownBy(() -> userService.updateUser(request))
+                    .isInstanceOf(UserException.class)
+                    .hasMessageContaining("닉네임");
+        }
+
     }
 }

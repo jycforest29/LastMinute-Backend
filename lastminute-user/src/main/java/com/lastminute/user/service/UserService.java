@@ -21,6 +21,8 @@ public class UserService {
 
     // Write
     private final UserWriteFacade userWriteFacade;
+
+    // TODO : 캐싱 처리
     private final ForbiddenNameRepository forbiddenNameRepository;
 
     public ReadUserResponseDto createUser(CreateUserRequestDto request) {
