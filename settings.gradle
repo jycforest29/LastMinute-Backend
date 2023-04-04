@@ -1,2 +1,3 @@
 rootProject.name = 'LastMinute'
-
+include 'lastminute-user'
+include 'lastminute-product'
