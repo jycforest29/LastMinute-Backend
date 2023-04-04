@@ -7,7 +7,6 @@ import com.lastminute.user.exception.UserException;
 import com.lastminute.user.external.dto.CreateUserRequestDto;
 import com.lastminute.user.external.dto.ReadUserResponseDto;
 import com.lastminute.user.external.dto.UpdateUserRequestDto;
-import com.lastminute.user.repository.ForbiddenNameRepository;
 import com.lastminute.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -67,7 +66,7 @@ public class UserService {
 
     private User findUserInternal(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ExceptionCode.USER_NOT_FOUND));
+                .orElseThrow(UserException.of(ExceptionCode.USER_NOT_FOUND));
     }
 
 }
