@@ -8,16 +8,18 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class ReadPaymentResponseDto {
+public class PaymentResponseDto {
     private final String paymentMethod;
+    private final Integer installmentPeriod;
     private final Integer originalPrice;
     private final Integer fee;
     private final Integer finalPrice;
     private final LocalDateTime acceptedAt;
     private final Boolean cancelAvailable;
-    public static ReadPaymentResponseDto of(Payment entity){
-        return ReadPaymentResponseDto.builder()
+    public static PaymentResponseDto of(Payment entity){
+        return PaymentResponseDto.builder()
                 .paymentMethod(entity.getPaymentMethod().getValue())
+                .installmentPeriod(entity.getInstallmentPeriod().getPeriod())
                 .originalPrice(entity.getOriginalPrice())
                 .fee(entity.getFee())
                 .finalPrice(entity.getFinalPrice())

@@ -30,6 +30,10 @@ public class Payment {
     PaymentMethod paymentMethod;
 
     @NotNull
+    @Enumerated(EnumType.ORDINAL)
+    InstallmentPeriod installmentPeriod;
+
+    @NotNull
     private Integer originalPrice;
 
     @NotNull
@@ -50,9 +54,11 @@ public class Payment {
     }
 
     @Builder
-    public Payment(Long pgId, PaymentMethod paymentMethod, Integer originalPrice, Integer fee, Integer finalPrice){
+    public Payment(Long pgId, PaymentMethod paymentMethod, InstallmentPeriod installmentPeriod,
+                   Integer originalPrice, Integer fee, Integer finalPrice){
         this.pgId = pgId;
         this.paymentMethod = paymentMethod;
+        this.installmentPeriod = installmentPeriod;
         this.originalPrice = originalPrice;
         this.fee = fee;
         this.finalPrice = finalPrice;

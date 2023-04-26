@@ -5,5 +5,8 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CreatePaymentRequestDto {
+public class CreatePaymentRequestDto { // TODO: validation 추가하
+    private final String paymentMethod;
+    private final Integer installmentPeriod;
+    private final Integer originalPrice;
 }
