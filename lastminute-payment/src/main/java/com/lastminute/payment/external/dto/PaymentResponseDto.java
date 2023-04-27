@@ -1,4 +1,4 @@
-package com.lastminute.external.dto;
+package com.lastminute.payment.external.dto;
 
 import com.lastminute.payment.domain.Payment;
 import lombok.Builder;
@@ -18,8 +18,8 @@ public class PaymentResponseDto {
     private final Boolean cancelAvailable;
     public static PaymentResponseDto of(Payment entity){
         return PaymentResponseDto.builder()
-                .paymentMethod(entity.getPaymentMethod().getValue())
-                .installmentPeriod(entity.getInstallmentPeriod().getPeriod())
+                .paymentMethod(entity.getPaymentMethod().getKey())
+                .installmentPeriod(entity.getInstallmentPeriod().getKey())
                 .originalPrice(entity.getOriginalPrice())
                 .fee(entity.getFee())
                 .finalPrice(entity.getFinalPrice())

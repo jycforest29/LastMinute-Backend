@@ -1,7 +1,7 @@
 package com.lastminute.payment.service;
 
-import com.lastminute.external.dto.CreatePaymentRequestDto;
-import com.lastminute.external.dto.PaymentResponseDto;
+import com.lastminute.payment.external.dto.CreatePaymentRequestDto;
+import com.lastminute.payment.external.dto.PaymentResponseDto;
 import com.lastminute.payment.domain.Payment;
 import com.lastminute.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
